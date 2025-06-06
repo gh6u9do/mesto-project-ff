@@ -1,7 +1,5 @@
 // в этом модуле хранится логика для работы с карточками
 
-import { setDataInImagePopup, openModal, popups } from "./modal";
-
 // Функция удаления карточки
 export function deleteCard(element) {
   element.parentElement.remove();
@@ -11,7 +9,7 @@ export function deleteCard(element) {
 export function createCard(cardData, likeHandler, viewHandler) {
   // копируем шаблон
   const cardTemplate = document.querySelector("#card-template").content;
-  const newCard = cardTemplate.cloneNode(true);
+  const newCard = cardTemplate.querySelector('.card').cloneNode(true);
 
   // устанавливаем название карточки и атрибуты img
   const cardTitle = newCard.querySelector(".card__title");
@@ -40,28 +38,14 @@ export function createCard(cardData, likeHandler, viewHandler) {
   return newCard;
 }
 
-// функция добавления карточки в список
-export function addCardOnList(list, card, position = "end") {
-  if(position == "begin") {
-    list.prepend(card);
-  } else if( position == "end") {
-    list.append(card);
-  }
-}
-
 // функция лайка карточки
 export function setLikeCard(target) {
-  // если карточка уже лайкнута - убираем лайк
-  if(target.classList.contains('card__like-button_is-active')) {
-    target.classList.remove('card__like-button_is-active');
-  } else {
-    // в ином случае добавляем лайк
-    target.classList.add('card__like-button_is-active');
-  }
+  // переключаем класс с лайком
+  target.classList.toggle('card__like-button_is-active');
 }
 
 // функция возвращает объект с данными для попапа image
-function getCardInfo(e) {
+export function getCardInfo(e) {
   // получаем саму карточку по которой кликнули
   const card = e.target.closest('.card');
 
@@ -72,12 +56,4 @@ function getCardInfo(e) {
   }
 
   return cardData;
-}
-
-// функция открывает карточку в режиме просмотра
-export function openCardInViewMode(e) {
-  // получаем данные карточки и кладем их в попап
-  const cardData = getCardInfo(e);
-  setDataInImagePopup(cardData);
-  openModal(popups.image);
 }

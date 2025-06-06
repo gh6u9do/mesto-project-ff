@@ -1,12 +1,14 @@
 // подключаем стили для вебпака
 import "../pages/index.css";
 
+// спасибо за ревью!!!
+
 // подключаем массив с данными карточки
 import { initialCards } from "./cards.js";
 // подключаем функции для работы с карточками
-import { createCard, addCardOnList, setLikeCard, openCardInViewMode } from "../components/card.js";
+import { createCard, setLikeCard, getCardInfo } from "../components/card.js";
 // подключаем функции для работы с попапами
-import { popups, openModal, closeModal, getActivityPopup } from "../components/modal.js";
+import { openModal, closeModal, getActivityPopup } from "../components/modal.js";
 
 
 
@@ -19,21 +21,46 @@ initialCards.forEach((value) => {
 });
 
 
+// находим все попапы
+export const popups = {
+  edit: document.querySelector(".popup_type_edit"),
+  newCard: document.querySelector(".popup_type_new-card"),
+  image: document.querySelector(".popup_type_image"),
+};
+
+// даем всем попапам анимацию и вешаем обработчик закрытия
+for(let key in popups) {
+  popups[key].classList.add('popup_is-animated');
+  popups[key].querySelector('.popup__close').addEventListener('click', (e) => {
+    closeModal(popups[key]);
+  });
+}
+
+
 
 // находим кнопку реадктирования профиля
 const editProfileBtn = document.querySelector(".profile__edit-button");
 // устанавливаем обработчик на кнопку редактирования
 editProfileBtn.addEventListener("click", (e) => {
-  setCurrentDataInEditPopup(getProfileFields());
+  setCurrentDataInEditPopup({name: profileName, description: profileDescription});
   openModal(popups.edit);
 });
 
-
+// функция устанавливает значения из профиля в попапе
+function setCurrentDataInEditPopup(fieldsObj) {
+  // перебираем объект и пушим текст из полей объекта в форму
+  for(let key in fieldsObj) {
+    editForm.elements[key].value = fieldsObj[key].textContent;
+  }
+}
 
 // находим кнопку добавления новой карточки
 const addNewCardButton = document.querySelector(".profile__add-button");
 // устанавливаем обработчик на кнопку добавления
 addNewCardButton.addEventListener("click", (e) => {
+  // очищаем форму 
+  newPlaceForm.reset();
+  // открываем попап добавления новой карточки
   openModal(popups.newCard);
 });
 
@@ -45,27 +72,17 @@ const editForm = document.forms["edit-profile"];
 editForm.addEventListener('submit', (e) => {
   // отменяем базовую отправку формы
   e.preventDefault();
+  // пакуем поля формы в объект
+  const profileFields= {name: profileName, description: profileDescription};
   // ставим данные в поля профиля 
-  setDataInProfile(editForm.elements, getProfileFields());
+  setDataInProfile(editForm.elements, profileFields);
   // закрываем попап
   closeModal(getActivityPopup());
 })
 
-// функция фозвращает объект с элементами профиля
-function getProfileFields() {
-  return {
-    name: document.querySelector(".profile__title"),
-    description: document.querySelector(".profile__description"),
-  };
-}
-
-// функция устанавливает значения из профиля в попапе
-function setCurrentDataInEditPopup(fieldsObj) {
-  // перебираем объект и пушим текст из полей объекта в форму
-  for(let key in fieldsObj) {
-    editForm.elements[key].value = fieldsObj[key].textContent;
-  }
-}
+// находим редактируемые поля профиля
+const profileName = document.querySelector(".profile__title");
+const profileDescription = document.querySelector(".profile__description");
 
 // функция устанавливает значения в профиле из попапа
 function setDataInProfile(data, profileFields) {
@@ -99,3 +116,33 @@ newPlaceForm.addEventListener('submit', (e) => {
   // очищаем форму
   newPlaceForm.reset();
 })
+
+
+
+// функция добавления карточки в список
+function addCardOnList(list, card, position = "end") {
+  if(position == "begin") {
+    list.prepend(card);
+  } else if( position == "end") {
+    list.append(card);
+  }
+}
+
+// функция открывает карточку в режиме просмотра
+function openCardInViewMode(e) {
+  // получаем данные карточки и кладем их в попап
+  const cardData = getCardInfo(e);
+  setDataInImagePopup(cardData);
+  openModal(popups.image);
+}
+
+// находим поля попапа картинки
+const popupCaptionField = popups.image.querySelector('.popup__caption');
+const popupImageField = popups.image.querySelector('.popup__image');
+
+// функция устанавливает данные в попап image
+export function setDataInImagePopup(data) {
+  popupCaptionField.textContent = data.caption;
+  popupImageField.alt = data.caption;
+  popupImageField.src = data.src;
+}
