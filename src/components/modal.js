@@ -17,6 +17,8 @@ export function openModal(popup) {
   // добавляем обработчик для закрытия по нажатию на клавишу (esc)
   document.addEventListener("keydown", closeModalWithKeydown);
   document.addEventListener('click', closeModalWithOverlay);
+  // лочим скролл на странице
+  document.querySelector('.page').classList.add('page_scroll-lock');
 }
 
 // функция закрывает попап
@@ -31,6 +33,8 @@ export function closeModal(popup) {
   document.removeEventListener("click", closeModalWithOverlay);
   // очищаем переменную с активным попапом
   activityPopup = "";
+  // возвращаем скролл
+  document.querySelector('.page').classList.remove('page_scroll-lock');
 }
 
 // функция обрабатывает нажатие клавиши 

@@ -4,3 +4,7 @@
 .page {
   background: #000;
 }
+
+.page_scroll-lock {
+  overflow: hidden;
+}

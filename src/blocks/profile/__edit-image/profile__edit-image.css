@@ -1,0 +1,14 @@
+.profile__edit-image {
+    position: absolute;
+    opacity: 0;
+}
+
+.profile__image:hover .profile__edit-image{
+    opacity: 1;
+
+    cursor: pointer;
+
+    transform: translate(-50%, -50%);
+    top: 50%;
+    left: 50%;
+}
