@@ -2,7 +2,7 @@
 @font-face{font-family:Inter;font-style:normal;font-weight:400;src:url(dcba3388310e6ae77440.woff2) format("woff2")}@font-face{font-family:Inter;font-style:normal;font-weight:500;src:url(e481ef8133a3c71636e5.woff2) format("woff2")}@font-face{font-family:Inter;font-style:normal;font-weight:900;src:url(8d07d4e4ea9833df9373.woff2) format("woff2")}
 .page__content{background-color:#000;min-height:100vh;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;display:flex;flex-direction:column}
 .page__section{box-sizing:border-box;margin:0 auto;max-width:882px;position:relative;width:100%}@media screen and (max-width:1140px){.page__section{width:calc(100% - 40px)}}
-.page{background:#000}
+.page{background:#000}.page_scroll-lock{overflow:hidden}
 .header__logo{height:33px;-o-object-fit:contain;object-fit:contain;width:142px}@media screen and (max-width:480px){.header__logo{height:24px;margin:0 0 0 7px;width:104px}}
 .header{align-items:center;display:flex;flex-shrink:0;font-family:Inter,Arial,sans-serif;min-height:120px}.header:before{background:#545454;bottom:0;content:"";height:1px;left:50%;opacity:.7;position:absolute;transform:translateX(-50%);width:100%}@media screen and (max-width:480px){.header{min-height:85px}.header:before{width:calc(100% + 40px)}}
 .content{flex-grow:1;flex-shrink:0}
