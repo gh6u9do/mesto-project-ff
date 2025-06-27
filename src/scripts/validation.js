@@ -130,12 +130,10 @@ export function toggleButtonState(
   // чекаем на невалид
   if (hasInvalidInput(inputList)) {
     // отключаем кнопку
-    buttonElement.disabled = true;
-    buttonElement.classList.add(`${inactiveButtunClass}`);
+    disableButtonState(buttonElement, inactiveButtunClass);
   } else {
     // делаем кнопку активной
-    buttonElement.disabled = false;
-    buttonElement.classList.remove(`${inactiveButtunClass}`);
+    enableButtonState(buttonElement, inactiveButtunClass);
   }
 }
 
@@ -150,21 +148,29 @@ export function clearValidation(
     errorClass,
   }
 ) {
-  // console.log("вызвали clearValidation");
   // находим поля на форме
   const inputList = Array.from(
     formElement.querySelectorAll(`.${inputSelector}`)
   );
   inputList.forEach((inputElement) => {
-    // удаляем класс ошибки с инпута
-    inputElement.classList.remove(`${inputErrorClass}`);
-    // очищаем сообщение об ошибке
-    const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
-    errorElement.textContent = "";
-    errorElement.classList.remove(`${errorClass}`);
+    // вызываем функцию очистки ошибки
+    hideInputError(formElement, inputElement, inputErrorClass, errorClass);
   });
 
   // делаем кнопку неактивной
+
   const buttonElement = formElement.querySelector(`.${submitButtonSelector}`);
-  toggleButtonState(inputList, buttonElement, inactiveButtunClass);
+  disableButtonState(buttonElement, inactiveButtunClass);
+}
+
+// функция делает кнопку неактивной
+function disableButtonState(buttonElement, inactiveButtunClass) {
+  buttonElement.disabled = true;
+  buttonElement.classList.add(inactiveButtunClass);
+}
+
+// функция делает кнопку активной
+function enableButtonState(buttonElement, inactiveButtunClass) {
+  buttonElement.disabled = false;
+  buttonElement.classList.remove(inactiveButtunClass);
 }

@@ -1,7 +1,6 @@
 // подключаем стили для вебпака
 import "../pages/index.css";
 
-
 // подключаем функции для работы с карточками
 import { createCard, setLikeCard, getCardInfo } from "../components/card.js";
 // подключаем функции для работы с попапами
@@ -16,9 +15,13 @@ import {
   isValid,
   toggleButtonState,
 } from "./validation.js";
-import { changeAvatarOnServer, getCards, getUserData, sendCard, sendUpdateUserData } from "./api.js";
-
-
+import {
+  changeAvatarOnServer,
+  getCards,
+  getUserData,
+  sendCard,
+  sendUpdateUserData,
+} from "./api.js";
 
 // находим все попапы
 export const popups = {
@@ -33,44 +36,41 @@ const profileName = document.querySelector(".profile__title");
 const profileDescription = document.querySelector(".profile__description");
 const profileImage = document.querySelector(".profile__image");
 
-
-
 // объявляем переменную для userDataFromServer
 let profileDataFromServer = "";
 // объявляем переменнуб для cardFromServer
 let cardsFromServer = "";
 
-// получаем с сервера информацию о пользователе и карточки
-await Promise.all([getUserData(), getCards()]) 
-  .then(([userData, cards]) => {
-    profileDataFromServer = userData; 
-    cardsFromServer = cards;
-  })
-  .catch((err => console.log(err))
-);
-
-// console.log(profileDataFromServer);
-
-// устанавливаем серверные данные в профиль
-setProfileDataFromServer(profileDataFromServer, {
-  name: profileName,
-  about: profileDescription,
-  avatar: profileImage
-});
-
-
-
-// проходим находим лист в котором должны быть карточки
+// находим лист в котором должны быть карточки
 const placesList = document.querySelector(".places__list");
 
-// создаем карточки
-cardsFromServer.forEach((cardData) => {
-  // создаем экзмепляр карточки
-  const newCard = createCard(profileDataFromServer._id, cardData, setLikeCard, openCardInViewMode);
-  // кладем карточку в лист
-  addCardOnList(placesList, newCard);
-})
+// получаем с сервера информацию о пользователе и карточки
+Promise.all([getUserData(), getCards()])
+  .then(([userData, cards]) => {
+    profileDataFromServer = userData;
+    cardsFromServer = cards;
 
+    // устанавливаем серверные данные в профиль
+    setProfileDataFromServer(profileDataFromServer, {
+      name: profileName,
+      about: profileDescription,
+      avatar: profileImage,
+    });
+
+    // создаем карточки
+    cardsFromServer.forEach((cardData) => {
+      // создаем экзмепляр карточки
+      const newCard = createCard(
+        profileDataFromServer._id,
+        cardData,
+        setLikeCard,
+        openCardInViewMode
+      );
+      // кладем карточку в лист
+      addCardOnList(placesList, newCard);
+    });
+  })
+  .catch((err) => console.log(err));
 
 
 // даем всем попапам анимацию и вешаем обработчик закрытия
@@ -81,31 +81,34 @@ for (let key in popups) {
   });
 }
 
+const validationConfig = {
+  inputSelector: "popup__input",
+  inputErrorClass: "popup__input_type_error",
+  errorClass: "popup__error_visible",
+  submitButtonSelector: "popup__button",
+  inactiveButtunClass: "popup__button_disabled",
+};
+
 // находим кнопку обновления аватарки
-const editAvatarBtn = document.querySelector('.profile__image');
+const editAvatarBtn = document.querySelector(".profile__image");
 // устанавливаем обработчик на аватарку
-editAvatarBtn.addEventListener('click', (e) => {
+editAvatarBtn.addEventListener("click", (e) => {
   // очищаем поля формы
-  popups.avatar.querySelector('.popup__form').reset();
+  popups.avatar.querySelector(".popup__form").reset();
+
+  // вызываем очистку валидации
+  clearValidation(popups.avatar, validationConfig);
 
   // открываем модалку
   openModal(popups.avatar);
+});
 
-  // вызываем очистку валидации
-  clearValidation(popups.avatar, {
-    inputSelector: "popup__input",
-    inputErrorClass: "popup__input_type_error",
-    errorClass: "popup__error_visible",
-    submitButtonSelector: "popup__button",
-    inactiveButtunClass: "popup__button_disabled",
-  })
-})
 // достаем форму смены аватарки
 const changeAvatarForm = document.forms["change-avatar"];
 // вешаем обработчик submit
-changeAvatarForm.addEventListener('submit', async (e) => {
+changeAvatarForm.addEventListener("submit", async (e) => {
   // находим кнопку submit
-  const submitButton = changeAvatarForm.querySelector('.popup__button');
+  const submitButton = changeAvatarForm.querySelector(".popup__button");
   // записываем дефолтный текст кнопки
   const oldTextButton = submitButton.textContent;
   // показывваем на кнопке что идет сохранение
@@ -113,15 +116,19 @@ changeAvatarForm.addEventListener('submit', async (e) => {
   // отменяем дефолтную отправку формы
   e.preventDefault();
   // достаем значение из инпута
-  const newAvatarUrl = changeAvatarForm.elements['avatar-link'].value;
+  const newAvatarUrl = changeAvatarForm.elements["avatar-link"].value;
   // отправляем новое значение на сервер
-  await changeAvatarOnServer(newAvatarUrl);
+  try {
+    await changeAvatarOnServer(newAvatarUrl);
+  } catch (err) {
+    console.log(err);
+  }
   // устанавливаем новую аватарку на верстке в профиле
   profileImage.style.backgroundImage = `url(${newAvatarUrl})`;
   submitButton.textContent = oldTextButton;
   // закрываем модалку
   closeModal(getActivityPopup());
-})
+});
 
 // находим кнопку реадктирования профиля
 const editProfileBtn = document.querySelector(".profile__edit-button");
@@ -136,22 +143,19 @@ editProfileBtn.addEventListener("click", (e) => {
   openModal(popups.edit);
 
   // очищаем от возможных ошибок валидации
-  clearValidation(popups.edit, {
-    inputSelector: "popup__input",
-    inputErrorClass: "popup__input_type_error",
-    errorClass: "popup__error_visible",
-    submitButtonSelector: "popup__button",
-    inactiveButtunClass: "popup__button_disabled",
-  });
+  clearValidation(popups.edit, validationConfig);
 
   // заставляем браузер пересчитать значение valid для каждого инпута
   // (для того чтобы кнопка была не disable при валидных данных при открытии формы)
-  const inputList = Array.from(
-    popups.edit.querySelectorAll('.popup__input')
-  );
+  const inputList = Array.from(popups.edit.querySelectorAll(".popup__input"));
   inputList.forEach((input) => {
-    isValid(popups.edit, input, "popup__error_visible", "popup__input_type_error");
-  })
+    isValid(
+      popups.edit,
+      input,
+      "popup__error_visible",
+      "popup__input_type_error"
+    );
+  });
 });
 
 // функция устанавливает значения из профиля в попапе
@@ -169,13 +173,7 @@ addNewCardButton.addEventListener("click", (e) => {
   // очищаем форму
   newPlaceForm.reset();
   // очищаем поля формы от возможных ошибок валидации
-  clearValidation(popups.newCard, {
-    inputSelector: "popup__input",
-    inputErrorClass: "popup__input_type_error",
-    errorClass: "popup__error_visible",
-    submitButtonSelector: "popup__button",
-    inactiveButtunClass: "popup__button_disabled",
-  })
+  clearValidation(popups.newCard, validationConfig);
   // открываем попап добавления новой карточки
   openModal(popups.newCard);
 });
@@ -201,7 +199,7 @@ editForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   // находим кнопку submit
-  const submitButton = editForm.querySelector('.popup__button');
+  const submitButton = editForm.querySelector(".popup__button");
   // записываем текст кнопки
   const oldButtonText = submitButton.textContent;
   // показываем пользователю что идет загрузка
@@ -212,14 +210,16 @@ editForm.addEventListener("submit", async (e) => {
   // ставим данные в поля профиля
   setDataInProfile(editForm.elements, profileFields);
   // отправляем данные на сервер
-  await sendUpdateUserData(profileFields);
+  try {
+    await sendUpdateUserData(profileFields);
+  } catch (err) {
+    console.log(err);
+  }
   // возвращаем исходный текст
   submitButton.textContent = oldButtonText;
   // закрываем попап
   closeModal(getActivityPopup());
 });
-
-
 
 // функция устанавливает значения в профиле из попапа
 function setDataInProfile(data, profileFields) {
@@ -236,7 +236,7 @@ newPlaceForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   // находим кнопку submit
-  const submitButton = newPlaceForm.querySelector('.popup__button');
+  const submitButton = newPlaceForm.querySelector(".popup__button");
   // записываем старый текст кнопки в переменную
   const oldButtonText = submitButton.textContent;
   // показываем на кнопке что идет сохранение
@@ -248,23 +248,35 @@ newPlaceForm.addEventListener("submit", async (e) => {
     link: newPlaceForm.elements["link"].value,
     likes: [],
     owner: {
-      _id: profileDataFromServer._id
+      _id: profileDataFromServer._id,
     },
     cardId: "",
   };
 
   // кладем карточку на сервер
-  const serverResponse = await sendCard(cardData.name, cardData.link)
+  let serverResponse = "";
 
-  console.log(serverResponse);
+  try {
+    serverResponse = await sendCard(cardData.name, cardData.link);
+  } catch (err) {
+    console.log(err);
+  }
+
+  // console.log(serverResponse);
+
   // дописываем id карточки из ответа сервера
   cardData._id = serverResponse._id;
 
   // создаем элемент карточки
-  const newCard = createCard(profileDataFromServer._id, cardData, setLikeCard, openCardInViewMode);
+  const newCard = createCard(
+    profileDataFromServer._id,
+    cardData,
+    setLikeCard,
+    openCardInViewMode
+  );
   // добавляем карточку
   addCardOnList(placesList, newCard, "begin");
-  
+
   // возвращаем дефолтный текст
   submitButton.textContent = oldButtonText;
 
@@ -303,10 +315,7 @@ export function setDataInImagePopup(data) {
 }
 
 // функция устанавливает данные в профиль из сервера
-function setProfileDataFromServer(
-  { name, about, avatar },
-  profileFields
-) {
+function setProfileDataFromServer({ name, about, avatar }, profileFields) {
   profileFields.name.textContent = name;
   profileFields.about.textContent = about;
   profileFields.avatar.style.backgroundImage = `url(${avatar})`;

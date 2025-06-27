@@ -9,22 +9,24 @@ const config = {
   },
 };
 
+// функция возвращает ответ сервера
+function getResponseData(res) {
+  if (res.ok) {
+    return res.json();
+  } else {
+    Promise.reject(`Ошибка: ${res.status}`);
+  }
+}
+
 // функция возвращает данные о пользователе
 export function getUserData() {
   return fetch(`${config.baseUrl}/users/me`, {
     headers: config.headers,
   })
     .then((res) => {
-      if(res.ok){
-        return res.json()
-      } else {
-        Promise.reject(`Ошибка: ${res.status}`);
-      }
+      return getResponseData(res);
     })
-    .then((res) => {
-      return res;
-    })
-    .catch((err) => console.log(err));
+    .then((res) => res);
 }
 
 // функция возвращает карточки
@@ -33,17 +35,9 @@ export function getCards() {
     headers: config.headers,
   })
     .then((res) => {
-      if (res.ok) {
-        return res.json();
-      } else {
-        Promise.reject("Ошибка: " + res.status);
-      }
+      return getResponseData(res);
     })
-    .then((res) => {
-      // console.log(res)
-      return res;
-    })
-    .catch((err) => console.log(err));
+    .then((res) => res);
 }
 
 // функция отправляет обновленные данные о профиле на сервер
@@ -57,16 +51,9 @@ export function sendUpdateUserData(userData) {
     }),
   })
     .then((res) => {
-      if (res.ok) {
-        return res.json();
-      } else {
-        Promise.reject(`Ошибка: ${res.status}`);
-      }
+      return getResponseData(res);
     })
-    .then((res) => {
-      return res;
-    })
-    .catch((err) => console.log(err));
+    .then((res) => res);
 }
 
 // добавляем новую карточку на сервер
@@ -80,17 +67,9 @@ export function sendCard(name, link) {
     }),
   })
     .then((res) => {
-      if (res.ok) {
-        return res.json();
-      } else {
-        Promise.reject(`Ошибка: ${res.status}`);
-      }
+      return getResponseData(res);
     })
-    .then((res) => {
-      console.log(res);
-      return res;
-    })
-    .catch((err) => console.log(err));
+    .then((res) => res);
 }
 
 // удаляем карточку на сервере
@@ -100,18 +79,9 @@ export function deleteCardOnServer(cardId) {
     headers: config.headers,
   })
     .then((res) => {
-      if (res.ok) {
-        return res.json();
-      } else {
-        Promise.reject(`Ошибка: ${res.status}`);
-      }
+      return getResponseData(res);
     })
-    .then((res) => {
-      return res;
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+    .then((res) => res);
 }
 
 // функция меняет статус лайка у карточки
@@ -123,36 +93,18 @@ export function toggleLikeCardStatusOnServer(action, cardId) {
       headers: config.headers,
     })
       .then((res) => {
-        if (res.ok) {
-          return res.json();
-        } else {
-          Promise.reject(`Ошибка: ${res.status}`);
-        }
+        return getResponseData(res);
       })
-      .then((res) => {
-        return res;
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+      .then((res) => res);
   } else if (action == "unlike") {
     return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
       method: "DELETE",
       headers: config.headers,
     })
       .then((res) => {
-        if (res.ok) {
-          return res.json();
-        } else {
-          Promise.reject(`Ошибка: ${res.status}`);
-        }
+        return getResponseData(res);
       })
-      .then((res) => {
-        return res;
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+      .then((res) => res);
   }
 }
 
@@ -165,16 +117,7 @@ export function changeAvatarOnServer(avatarUrl) {
     body: JSON.stringify({ avatar: avatarUrl }),
   })
     .then((res) => {
-      if (res.ok) {
-        return res.json();
-      } else {
-        Promise.reject(`Ошибка: ${res.status}`);
-      }
+      return getResponseData(res);
     })
-    .then((res) => {
-      return res;
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+    .then((res) => res);
 }

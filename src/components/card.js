@@ -73,7 +73,6 @@ export async function setLikeCard(target) {
   // получаем элемент карточки
   const cardElement = target.closest('.card');
   const cardId = cardElement.dataset.cardId;
-  // console.log(cardId); 
 
   // объявляем переменную с ответом сервера
   let serverAnswer = "";
