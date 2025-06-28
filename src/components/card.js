@@ -9,9 +9,13 @@ export async function deleteCard(element) {
   // берем айди карточки из датасета
   const cardId = cardElement.dataset.cardId;
   // удаляем карточку по айди
-  await deleteCardOnServer(cardId);
-  // удаляем карточку на верстке
-  cardElement.remove();
+  try {
+    const res = await deleteCardOnServer(cardId);
+    // удаляем карточку на верстке
+    cardElement.remove();
+  } catch(err) {
+    console.log(err);
+  }
 }
 
 // Функция создания карточки
@@ -76,22 +80,33 @@ export async function setLikeCard(target) {
 
   // объявляем переменную с ответом сервера
   let serverAnswer = "";
+  // находим элемент с количеством лайков
+  const cardLikeNum = cardElement.querySelector('.card__like-num');
 
   // чекаем лайкнута ли карточка
   if(target.classList.contains('card__like-button_is-active')){
     // записываем ответ сервера на дизлайк
-    serverAnswer = await toggleLikeCardStatusOnServer('unlike', cardId);
+    try {
+      serverAnswer = await toggleLikeCardStatusOnServer('unlike', cardId);
+      // устанавливаем значение лайков из значения ответа сервера
+      cardLikeNum.textContent = serverAnswer.likes.length;
+      // переключаем класс с лайком
+      target.classList.toggle('card__like-button_is-active');
+    } catch(err) {
+      console.log(err);
+    }
   } else {
     // записываем ответ сервера на лайк
-    serverAnswer = await toggleLikeCardStatusOnServer('like', cardId);
+    try{
+      serverAnswer = await toggleLikeCardStatusOnServer('like', cardId);
+      // устанавливаем значение лайков из значения ответа сервера
+      cardLikeNum.textContent = serverAnswer.likes.length;
+      // переключаем класс с лайком
+      target.classList.toggle('card__like-button_is-active');
+    } catch(err) {
+      console.log(err);
+    }
   }
-
-  // переключаем класс с лайком
-  target.classList.toggle('card__like-button_is-active');
-  // находим элемент с количеством лайков
-  const cardLikeNum = cardElement.querySelector('.card__like-num');
-  // устанавливаем значение лайков из значения ответа сервера
-  cardLikeNum.textContent = serverAnswer.likes.length;
 }
 
 // функция возвращает объект с данными для попапа image

@@ -72,7 +72,6 @@ Promise.all([getUserData(), getCards()])
   })
   .catch((err) => console.log(err));
 
-
 // даем всем попапам анимацию и вешаем обработчик закрытия
 for (let key in popups) {
   popups[key].classList.add("popup_is-animated");
@@ -120,14 +119,16 @@ changeAvatarForm.addEventListener("submit", async (e) => {
   // отправляем новое значение на сервер
   try {
     await changeAvatarOnServer(newAvatarUrl);
+    // устанавливаем новую аватарку на верстке в профиле
+    profileImage.style.backgroundImage = `url(${newAvatarUrl})`;
+    // закрываем модалку
+    closeModal(getActivityPopup());
   } catch (err) {
     console.log(err);
+  } finally {
+    // возвращаем исходный текст кнопки
+    submitButton.textContent = oldTextButton;
   }
-  // устанавливаем новую аватарку на верстке в профиле
-  profileImage.style.backgroundImage = `url(${newAvatarUrl})`;
-  submitButton.textContent = oldTextButton;
-  // закрываем модалку
-  closeModal(getActivityPopup());
 });
 
 // находим кнопку реадктирования профиля
@@ -212,13 +213,14 @@ editForm.addEventListener("submit", async (e) => {
   // отправляем данные на сервер
   try {
     await sendUpdateUserData(profileFields);
+    // закрываем попап
+    closeModal(getActivityPopup());
   } catch (err) {
     console.log(err);
+  } finally {
+    // возвращаем исходный текст
+    submitButton.textContent = oldButtonText;
   }
-  // возвращаем исходный текст
-  submitButton.textContent = oldButtonText;
-  // закрываем попап
-  closeModal(getActivityPopup());
 });
 
 // функция устанавливает значения в профиле из попапа
@@ -253,37 +255,35 @@ newPlaceForm.addEventListener("submit", async (e) => {
     cardId: "",
   };
 
-  // кладем карточку на сервер
+  // объявляем переменную ответа сервера
   let serverResponse = "";
 
+  // кладем карточку на сервер
   try {
     serverResponse = await sendCard(cardData.name, cardData.link);
+
+    // дописываем id карточки из ответа сервера
+    cardData._id = serverResponse._id;
+
+    // создаем элемент карточки
+    const newCard = createCard(
+      profileDataFromServer._id,
+      cardData,
+      setLikeCard,
+      openCardInViewMode
+    );
+    // добавляем карточку
+    addCardOnList(placesList, newCard, "begin");
+    // закрываем окно
+    closeModal(getActivityPopup());
   } catch (err) {
     console.log(err);
+  } finally {
+    // возвращаем дефолтный текст
+    submitButton.textContent = oldButtonText;
+    // очищаем форму
+    newPlaceForm.reset();
   }
-
-  // console.log(serverResponse);
-
-  // дописываем id карточки из ответа сервера
-  cardData._id = serverResponse._id;
-
-  // создаем элемент карточки
-  const newCard = createCard(
-    profileDataFromServer._id,
-    cardData,
-    setLikeCard,
-    openCardInViewMode
-  );
-  // добавляем карточку
-  addCardOnList(placesList, newCard, "begin");
-
-  // возвращаем дефолтный текст
-  submitButton.textContent = oldButtonText;
-
-  // закрываем окно
-  closeModal(getActivityPopup());
-  // очищаем форму
-  newPlaceForm.reset();
 });
 
 // функция добавления карточки в список
