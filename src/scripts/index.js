@@ -1,6 +1,9 @@
 // подключаем стили для вебпака
 import "../pages/index.css";
 
+// спасибо за ревью!
+// p.s. прошу прощения, что не заметил все сразу
+
 // подключаем функции для работы с карточками
 import { createCard, setLikeCard, getCardInfo } from "../components/card.js";
 // подключаем функции для работы с попапами
@@ -38,7 +41,7 @@ const profileImage = document.querySelector(".profile__image");
 
 // объявляем переменную для userDataFromServer
 let profileDataFromServer = "";
-// объявляем переменнуб для cardFromServer
+// объявляем переменную для cardFromServer
 let cardsFromServer = "";
 
 // находим лист в котором должны быть карточки
@@ -47,6 +50,7 @@ const placesList = document.querySelector(".places__list");
 // получаем с сервера информацию о пользователе и карточки
 Promise.all([getUserData(), getCards()])
   .then(([userData, cards]) => {
+    // записываем ответ сервера в переменные
     profileDataFromServer = userData;
     cardsFromServer = cards;
 
@@ -92,10 +96,10 @@ const validationConfig = {
 const editAvatarBtn = document.querySelector(".profile__image");
 // устанавливаем обработчик на аватарку
 editAvatarBtn.addEventListener("click", (e) => {
-  // очищаем поля формы
+  // при открытии очищаем поля формы
   popups.avatar.querySelector(".popup__form").reset();
 
-  // вызываем очистку валидации
+  // вызываем очистку ошибок валидации
   clearValidation(popups.avatar, validationConfig);
 
   // открываем модалку
@@ -135,6 +139,7 @@ changeAvatarForm.addEventListener("submit", async (e) => {
 const editProfileBtn = document.querySelector(".profile__edit-button");
 // устанавливаем обработчик на кнопку редактирования
 editProfileBtn.addEventListener("click", (e) => {
+  // устанавливаем в попап текущие данные из профиля
   setCurrentDataInEditPopup({
     name: profileName,
     description: profileDescription,
@@ -208,11 +213,11 @@ editForm.addEventListener("submit", async (e) => {
 
   // пакуем поля формы в объект
   const profileFields = { name: profileName, description: profileDescription };
-  // ставим данные в поля профиля
-  setDataInProfile(editForm.elements, profileFields);
-  // отправляем данные на сервер
+  // отправляем новые данные о пользователе на сервер
   try {
     await sendUpdateUserData(profileFields);
+    // ставим данные в поля профиля
+    setDataInProfile(editForm.elements, profileFields);
     // закрываем попап
     closeModal(getActivityPopup());
   } catch (err) {
@@ -276,13 +281,13 @@ newPlaceForm.addEventListener("submit", async (e) => {
     addCardOnList(placesList, newCard, "begin");
     // закрываем окно
     closeModal(getActivityPopup());
+    // очищаем форму
+    newPlaceForm.reset();
   } catch (err) {
     console.log(err);
   } finally {
     // возвращаем дефолтный текст
     submitButton.textContent = oldButtonText;
-    // очищаем форму
-    newPlaceForm.reset();
   }
 });
 
